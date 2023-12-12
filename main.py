@@ -27,12 +27,19 @@ def message(message,message_rectangle,color):
     message = font.render(message,False,color)
     screen.blit(message,message_rectangle)    
 
-tiret="-"   
-mot_a_deviner = "Pendu"  # Remplacez cela par le mot à deviner
+image1=pygame.image.load("picture/image1.png")
+image2=pygame.image.load("picture/image2.png")
+image3=pygame.image.load("picture/image3.png")
+image4=pygame.image.load("picture/image4.png")
+image5=pygame.image.load("picture/image5.png")
+image6=pygame.image.load("picture/image6.png")
+image7=pygame.image.load("picture/image7.png")
+
 tentatives = set()  # Pour stocker les lettres déjà essayées
-random_word=""
-hide_word=""
-score=0
+random_word= random_word=random.choice(mot)
+hide_word="-"*len(random_word)
+lose=0
+win=0
 game=True
 start_screen=True
 while game:   
@@ -73,21 +80,49 @@ while game:
         pygame.display.flip()
 
     for event in pygame.event.get():
-        message(hide_word,(450, 300,600,50),(0,0,0))
         text_tentatives = font.render("Tentatives: " + ", ".join(sorted(tentatives)), True, (0, 0, 0))
         screen.blit(text_tentatives, (50, 50))
+        
         if event.type == pygame.QUIT:
             sys.exit()    
+        print(random_word) 
+        if event.type==pygame.KEYDOWN:
+            if event.key==pygame.K_ESCAPE:
+                tentatives = set()  # Pour stocker les lettres déjà essayées
+                random_word= random_word=random.choice(mot)
+                hide_word="-"*len(random_word) 
+                lose =0 
+                win=0
         if event.type == pygame.KEYDOWN:
             if event.unicode.isalpha() and event.unicode.upper() not in tentatives:
                 tentatives.add(event.unicode.upper())
+
                 if event.unicode.upper() in random_word.upper():
-                    hide_word = "".join([char if char.upper() in tentatives else "-" for char in random_word])
+                    hide_word = "".join([i if i.upper() in tentatives else "-" for i in random_word])
+                else:
+                    lose +=1    
+                    print(lose)
+        
 
         screen.fill((0,255,255))   
-        
-        message("Appuyez sur échap pour (re)commencer une partie",(225, 50,600,50),(0,0,0))        
-        message(hide_word,(450, 300,600,50),(0,0,0))
+        if lose==0:
+            screen.blit(image1,(350,200))
+        if lose==1:
+            screen.blit(image2,(350,200))
+        if lose==2:
+            screen.blit(image3,(350,200))  
+        if lose==3:
+            screen.blit(image4,(350,200))
+        if lose==4:
+            screen.blit(image5,(350,200))
+        if lose==5:
+            screen.blit(image6,(350,200))
+        if lose>=6:
+            screen.blit(image7,(350,200))                  
+            message("Perdu ! :(",(500, 150,600,50),(255,0,0))    
+            message("Appuyez sur échap pour (re)commencer une partie",(225, 50,600,50),(0,0,0)) 
+        message("Tentatives: " + ", ".join(sorted(tentatives)),(50, 115,600,50),(0,0,0))       
+        message(hide_word,(450, 450,600,50),(0,0,0))
         pygame.display.flip()    
         
 

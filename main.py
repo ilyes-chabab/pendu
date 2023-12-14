@@ -10,6 +10,8 @@ button_text= font.render("Jouer",True,(255,255,255))
 button_rect= button_text.get_rect(center=(500,350))
 button_rect.width += 50
 button_rect.height += 20
+word_text= font.render("Mot à ajouter...",True,(255,255,255))
+word_rect= button_text.get_rect(center=(75,425))
 easy_rect= button_text.get_rect(center=(535,150))
 easy_text= font.render("easy",True,(255,255,255))
 medium_rect= button_text.get_rect(center=(525,225))
@@ -27,6 +29,10 @@ image5=pygame.image.load("picture/image5.png")
 image6=pygame.image.load("picture/image6.png")
 image7=pygame.image.load("picture/image7.png")
 user_text= ''
+score_win=0
+score_lose=0
+player=""
+isgamefinish=True
 input_active=False
 tentatives = set()  # Pour stocker les lettres déjà essayées   
 game=True
@@ -55,7 +61,7 @@ print(medium_word)
 print(hard_word)
 def message(message,message_rectangle,color):
     message = font.render(message,False,color)
-    screen.blit(message,message_rectangle)    
+    screen.blit(message,message_rectangle)
 
 while game:   
     #ecran de debut pour choisir en jouer ou ajouter un mot 
@@ -63,7 +69,11 @@ while game:
         for event in pygame.event.get():
             screen.fill((0,130,255))
             screen.blit(button_text, (button_rect.centerx -29 , button_rect.centery -15))
-            pygame.draw.rect(screen, (0,0,0), button_rect, 2)       
+            screen.blit(word_text, (word_rect.centerx -29 , word_rect.centery -15))
+            pygame.draw.rect(screen, (0,0,0), button_rect, 2)    
+            pygame.draw.rect(screen , (0, 172, 183),(20,20,350,300))   
+            message("scores : ",(20,20,350,300),(0,0,0))
+            message("comming soon...",(60,100,350,300),(0,0,0))
             if event.type == pygame.QUIT:
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -78,18 +88,18 @@ while game:
                             screen.blit(hard_text, (hard_rect.centerx -29 ,hard_rect.centery -10))
                             if event.type == pygame.MOUSEBUTTONDOWN:
                                 if easy_rect.collidepoint(event.pos):
-                                    liste= easy_word
+                                    lists= easy_word
                                     start_screen=False
                                     gamemode=False
                                 elif medium_rect.collidepoint(event.pos):
-                                    liste= medium_word
+                                    lists= medium_word
                                     start_screen=False
                                     gamemode=False
                                 elif hard_rect.collidepoint(event.pos):
-                                    liste= hard_word
+                                    lists= hard_word
                                     start_screen=False
                                     gamemode=False  
-                                random_word= random_word=random.choice(liste)
+                                random_word= random_word=random.choice(lists)
                                 hide_word="-"*len(random_word) 
                                 lose =0                      
                             pygame.display.flip()        
@@ -130,22 +140,21 @@ while game:
         if event.type==pygame.KEYDOWN:
             if event.key==pygame.K_ESCAPE:
                 tentatives = set()  # Pour stocker les lettres déjà essayées
-                random_word= random_word=random.choice(liste)
+                random_word= random_word=random.choice(lists)
                 hide_word="-"*len(random_word) 
                 lose =0
-        if event.type == pygame.KEYDOWN: 
-            if event.unicode.isalpha() and event.unicode.upper() not in tentatives:
-                tentatives.add(event.unicode.upper())
-                if event.unicode.upper() in random_word.upper():
-                    hide_word = "".join([i if i.upper() in tentatives else "-" for i in random_word])
-                    print(hide_word)
-                    print(random_word)
-                    
-                else:
-                    lose +=1    
-                    print(lose)
-                # if win == len(random_word):
-                #     message("Gagné ! :D ",(500, 150,600,50),(255,0,0))
+                isgamefinish=True
+        if isgamefinish:
+            if event.type == pygame.KEYDOWN: 
+                if event.unicode.isalpha() and event.unicode.upper() not in tentatives:
+                    tentatives.add(event.unicode.upper())
+                    if event.unicode.upper() in random_word.upper():
+                        hide_word = "".join([i if i.upper() in tentatives else "-" for i in random_word])
+                        print(hide_word)
+                        print(random_word)                   
+                    else:
+                        lose +=1    
+                        print(lose)
         screen.fill((255,255,255))
         #compte les nombre de fausse lettre de l'utilisateur et les associe aux differentes etapes du pendu (c'est des images)   
         if lose==0:
@@ -164,12 +173,15 @@ while game:
             screen.blit(image7,(350,200))                  
             message("Perdu ! :(",(500, 150,600,50),(255,0,0))    
             message("Appuyez sur échap pour (re)commencer une partie",(225, 50,600,50),(0,0,0)) 
+            isgamefinish=False
         if hide_word==random_word:
             message("Gagné ! :D ",(500, 150,600,50),(255,0,0))
+            message("Appuyez sur échap pour (re)commencer une partie",(225, 50,600,50),(0,0,0)) 
+            score_win +=154
+            isgamefinish=False
         message("Tentatives: " + ", ".join(sorted(tentatives)),(50, 115,600,50),(0,0,0))       
         message(hide_word,(450, 450,600,50),(0,0,0))
         pygame.display.flip()    
         
-
 pygame.quit()
 sys.exit()

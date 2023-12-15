@@ -34,3 +34,5 @@ environnement
 resolution
 participatif
 exceptionnellement
+electricite
+souris

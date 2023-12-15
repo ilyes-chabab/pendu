@@ -28,13 +28,14 @@ image4=pygame.image.load("picture/image4.png")
 image5=pygame.image.load("picture/image5.png")
 image6=pygame.image.load("picture/image6.png")
 image7=pygame.image.load("picture/image7.png")
+hasScoredThisGame = True
 user_text= ''
-score_win=0
-score_lose=0
 player=""
+score_win= 0
+score_lose= 0
 isgamefinish=True
 input_active=False
-tentatives = set()  # Pour stocker les lettres déjà essayées   
+tentatives = set()  # Pour stocker les lettres déjà essayées sans mettre les doublons 
 game=True
 start_screen=True
 gamemode=False
@@ -62,6 +63,7 @@ print(hard_word)
 def message(message,message_rectangle,color):
     message = font.render(message,False,color)
     screen.blit(message,message_rectangle)
+
 
 while game:   
     #ecran de debut pour choisir en jouer ou ajouter un mot 
@@ -91,17 +93,23 @@ while game:
                                     lists= easy_word
                                     start_screen=False
                                     gamemode=False
+                                    random_word= random_word=random.choice(lists)
+                                    hide_word="-"*len(random_word) 
+                                    lose =0    
                                 elif medium_rect.collidepoint(event.pos):
                                     lists= medium_word
                                     start_screen=False
                                     gamemode=False
+                                    random_word= random_word=random.choice(lists)
+                                    hide_word="-"*len(random_word) 
+                                    lose =0    
                                 elif hard_rect.collidepoint(event.pos):
                                     lists= hard_word
                                     start_screen=False
                                     gamemode=False  
-                                random_word= random_word=random.choice(lists)
-                                hide_word="-"*len(random_word) 
-                                lose =0                      
+                                    random_word= random_word=random.choice(lists)
+                                    hide_word="-"*len(random_word) 
+                                    lose =0                      
                             pygame.display.flip()        
             if event.type == pygame.MOUSEBUTTONDOWN:
                 # Si l'utilisateur clique dans la zone de texte, il pourra ecrire le mot qu'il souhaite ajouter
@@ -127,6 +135,7 @@ while game:
 
         pygame.display.flip()
     #quand l'utilisateur aura choisi sa difficulté il tombera sur cet event (le jeu du pendu)
+    
     for event in pygame.event.get():
         text_tentatives = font.render("Tentatives: " + ", ".join(sorted(tentatives)), True, (0, 0, 0))
         screen.blit(text_tentatives, (50, 50))
@@ -135,7 +144,6 @@ while game:
             sys.exit()    
         if event.type == pygame.MOUSEBUTTONDOWN:
             if start_rect.collidepoint(event.pos):   
-
                 print(random_word) 
         if event.type==pygame.KEYDOWN:
             if event.key==pygame.K_ESCAPE:
@@ -144,14 +152,15 @@ while game:
                 hide_word="-"*len(random_word) 
                 lose =0
                 isgamefinish=True
+                hasScoredThisGame=True
         if isgamefinish:
-            if event.type == pygame.KEYDOWN: 
+            if event.type == pygame.KEYDOWN:
+                print(random_word) 
                 if event.unicode.isalpha() and event.unicode.upper() not in tentatives:
                     tentatives.add(event.unicode.upper())
                     if event.unicode.upper() in random_word.upper():
                         hide_word = "".join([i if i.upper() in tentatives else "-" for i in random_word])
-                        print(hide_word)
-                        print(random_word)                   
+                        print(hide_word)                                      
                     else:
                         lose +=1    
                         print(lose)
@@ -174,13 +183,20 @@ while game:
             message("Perdu ! :(",(500, 150,600,50),(255,0,0))    
             message("Appuyez sur échap pour (re)commencer une partie",(225, 50,600,50),(0,0,0)) 
             isgamefinish=False
+            if hasScoredThisGame:
+                score_lose +=1
+                hasScoredThisGame = False
         if hide_word==random_word:
+        
             message("Gagné ! :D ",(500, 150,600,50),(255,0,0))
             message("Appuyez sur échap pour (re)commencer une partie",(225, 50,600,50),(0,0,0)) 
-            score_win +=154
             isgamefinish=False
+            if hasScoredThisGame:
+                score_win +=1
+                hasScoredThisGame = False
         message("Tentatives: " + ", ".join(sorted(tentatives)),(50, 115,600,50),(0,0,0))       
         message(hide_word,(450, 450,600,50),(0,0,0))
+        message(f"Win :{score_win} Lose:{score_lose}",(50, 85,600,50),(0,0,0))
         pygame.display.flip()    
         
 pygame.quit()
